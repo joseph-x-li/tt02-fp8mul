@@ -31,10 +31,10 @@ documentation:
     - clock
     - reset
     - enable
-    - input1 (Sign Bit / Exponent 4)
-    - input1 (Exponent 1 / Mantissa 1)
-    - input1 (Exponent 2 / Mantissa 2)
     - input1 (Exponent 3 / Mantissa 3)
+    - input1 (Exponent 2 / Mantissa 2)
+    - input1 (Exponent 1 / Mantissa 1)
+    - input1 (Sign Bit / Exponent 4)
     - none
   outputs:
     - Mantissa 3
