@@ -6,7 +6,7 @@ module jxli_fp8mul_tb;
 
   assign io_in = {1'b0, data, enable, reset, clock};
 
-  jxli_fp8mul dut(.*);
+  jxli_fp8mul dut(.io_in(io_in), .io_out(io_out));
 
   initial begin
 

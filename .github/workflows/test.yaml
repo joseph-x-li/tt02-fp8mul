@@ -1,0 +1,20 @@
+name: test
+# run the self-checking testbench in src/mul_tb.sv
+on: [ push, workflow_dispatch ]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout repo
+      uses: actions/checkout@v4
+
+    - name: install iverilog
+      run: |
+        sudo apt-get update -y
+        sudo apt-get install -y iverilog
+
+    - name: run testbench
+      run: |
+        iverilog -g2012 -o mul_tb src/mul_tb.sv src/mul.sv
+        vvp -n mul_tb | tee tb.log
+        grep -q "ALL TESTS PASSED" tb.log
