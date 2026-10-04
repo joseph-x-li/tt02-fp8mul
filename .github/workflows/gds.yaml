@@ -18,7 +18,7 @@ jobs:
     steps:
     # need the repo checked out
     - name: checkout repo
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         submodules: recursive
 
@@ -33,7 +33,7 @@ jobs:
 
     # need python
     - name: setup python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.10'
     - run: pip install requests PyYAML
@@ -69,13 +69,13 @@ jobs:
         sssummarizer/sssummarizer.py --gl runs/wokwi/results/final/verilog/gl/*.v --print-category >> $GITHUB_STEP_SUMMARY
 
     - name: populate src cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: src
         key: ${{ runner.os }}-src-${{ github.run_id }}
 
     - name: populate runs cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: runs
         key: ${{ runner.os }}-runs-${{ github.run_id }}
@@ -85,15 +85,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: checkout repo
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: setup python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.10'
 
     - name: restore runs cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: runs
         key: ${{ runner.os }}-runs-${{ github.run_id }}
@@ -120,7 +120,7 @@ jobs:
         EOF
 
     - name: populate png cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: 'gds_render.png'
         key: ${{ runner.os }}-png-${{ github.run_id }}
@@ -130,17 +130,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: checkout GDS2glTF repo
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: mbalestrini/GDS2glTF
 
     - name: setup python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.10'
 
     - name: restore runs cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: runs
         key: ${{ runner.os }}-runs-${{ github.run_id }}
@@ -152,7 +152,7 @@ jobs:
         python3 gds2gltf.py tinytapeout.gds
 
     - name: populate viewer cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: 'tinytapeout.gds.gltf'
         key: ${{ runner.os }}-viewer-${{ github.run_id }}
@@ -163,19 +163,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: restore src cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: src
         key: ${{ runner.os }}-src-${{ github.run_id }}
 
     - name: restore runs cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: runs
         key: ${{ runner.os }}-runs-${{ github.run_id }}
 
     - name: upload artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
           # path depends on the tag and the module name
           name: GDS
@@ -186,6 +186,8 @@ jobs:
             runs/wokwi/reports/synthesis/1-synthesis.AREA 0.stat.rpt
 
   pages:
+    # the github-pages environment only accepts deploys from main
+    if: github.ref == 'refs/heads/main'
     needs:
     - png
     - viewer
@@ -197,12 +199,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: restore png cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: 'gds_render.png'
         key: ${{ runner.os }}-png-${{ github.run_id }}
     - name: restore viewer cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: 'tinytapeout.gds.gltf'
         key: ${{ runner.os }}-viewer-${{ github.run_id }}
@@ -225,14 +227,14 @@ jobs:
           </html>
         EOF
     - name: Setup Pages
-      uses: actions/configure-pages@v2
+      uses: actions/configure-pages@v5
     - name: Upload artifact
-      uses: actions/upload-pages-artifact@v1
+      uses: actions/upload-pages-artifact@v3
       with:
         path: '.'
     - name: Deploy to GitHub Pages
       id: deployment
-      uses: actions/deploy-pages@v1.2.2
+      uses: actions/deploy-pages@v4
 
   preview:
     needs: pages

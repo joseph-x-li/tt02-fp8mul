@@ -22,8 +22,9 @@ module jxli_fp8mul (input [7:0] io_in, output [7:0] io_out);
   wire [3:0] data = io_in[6:3];
 
   // E4M3
-  // 5 bits exponent registers
-  reg [4:0] ae, be, ce;
+  // 6 bits exponent registers (ae + be can reach -18 for two denormals,
+  // which wraps around in 5 bits)
+  reg [5:0] ae, be, ce;
   // 4 bits mantissa registers
   reg [3:0] am, bm, cm;
 
@@ -76,9 +77,9 @@ module jxli_fp8mul (input [7:0] io_in, output [7:0] io_out);
       end
 
       CALC1: begin
-        ae <= {1'b0, a[6:3]} - 5'd7;
+        ae <= {2'b0, a[6:3]} - 6'd7;
         am <= {1'b0, a[2:0]};
-        be <= {1'b0, b[6:3]} - 5'd7;
+        be <= {2'b0, b[6:3]} - 6'd7;
         bm <= {1'b0, b[2:0]};
         c[7] <= a[7] ^ b[7];
         state <= CALC2;
@@ -105,14 +106,15 @@ module jxli_fp8mul (input [7:0] io_in, output [7:0] io_out);
           c[6:0] <= 7'd0;
         end else begin
           // denormalize numbers
+          // (a denormal is 0.mmm x 2^-6, same exponent as the smallest normal)
           state <= CALC3;
           if ($signed(ae) == -7) begin
-            ae <= -7;
+            ae <= -6;
           end else begin
             am[3] <= 1;
           end
           if ($signed(be) == -7) begin
-            be <= -7;
+            be <= -6;
           end else begin
             bm[3] <= 1;
           end
@@ -140,9 +142,16 @@ module jxli_fp8mul (input [7:0] io_in, output [7:0] io_out);
       end
 
       // Perform computation, no rounding behavior
+      // 1.xxx * 1.xxx is in [1, 4), so product is either 1x.xxxxxx or
+      // 01.xxxxxx. cm only holds 4 bits, so pick them based on product[7].
       CALC5: begin
-        ce <= ae + be + 1;
-        cm <= product[7:3];
+        if (product[7]) begin
+          ce <= ae + be + 1;
+          cm <= product[7:4];
+        end else begin
+          ce <= ae + be;
+          cm <= product[6:3];
+        end
         state <= CALC6;
       end
 
