@@ -12,11 +12,11 @@ jobs:
     steps:
     # need the repo checked out
     - name: checkout repo
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     # need python
     - name: setup python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: '3.10'
     - run: pip install requests PyYAML
@@ -37,14 +37,14 @@ jobs:
 
     # make an artifact
     - name: upload artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
           name: docs
           path: info.yaml
 
     # archive the PDF
     - name: Archive PDF
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
           name: PDF
           path: datasheet.pdf
